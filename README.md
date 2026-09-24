@@ -26,3 +26,4 @@ The project software is developed based on Python, and the hardware resources in
 - [Hardware assemble](./doc/assemble.md)
 - [Software setup](./doc/setup.md)
 - [Unit test](./doc/unittest.md)
+- [AI skill](./doc/skill.md)

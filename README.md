@@ -23,5 +23,6 @@ The project software is developed based on Python, and the hardware resources in
 
 ## Get started
 
-- [assemble](./doc/assemble.md)
-- [setup](./doc/setup.md)
+- [Hardware assemble](./doc/assemble.md)
+- [Software setup](./doc/setup.md)
+- [Unit test](./doc/unittest.md)

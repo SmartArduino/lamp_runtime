@@ -21,7 +21,13 @@ The project software is developed based on Python, and the hardware resources in
   <img src="./assets/images/product.png" alt="product">
 </p>
 
+## Schematic
+
+![](./assets/images/schematic.jpg)
+
 ## Get started
+
+By following the documentation below, you can achieve an AI lamp.
 
 - [Hardware assemble](./doc/assemble.md)
 - [Calibrate servo](./doc/calibrate.md)

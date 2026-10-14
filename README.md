@@ -26,7 +26,7 @@ The project software is developed based on Python, and the hardware resources in
 ### Schematic
 The lamp uses the Radxa Rock 5C (RK3588 inside) as its main control board, and is also compatible with Raspberry Pi solutions. It supports deploying self-trained small models for customized machine learning skills, and can connect to big model platforms (GLM model) over the network to enable general-purpose AI conversation capabilities.
 
-![](./assets/images/schematic.jpg)
+![](./assets/images/schematic.png)
 
 ### Why use ESP32
 

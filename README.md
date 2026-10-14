@@ -40,6 +40,22 @@ The lamp uses the Radxa Rock 5C (RK3588 inside) as its main control board, and i
 
 The device uses an ESP32-C3 module to control various peripherals, while the main control board is only responsible for big model access and the inference and execution of small models. The main control board communicates with the ESP32 via UART using a custom protocol, indirectly achieving control over the peripherals. This approach, on one hand, decouples the software, avoiding the need to rewrite peripheral drivers when using different SoC; on the other hand, it isolates the main control and peripheral circuits at the hardware level, making debugging easier and avoiding interference.
 
+### Evaluation in Mujoco
+The video below demonstrates an example of recording motion data for a desk lamp in a MuJoCo environment, training an ONNX model with the collected data, and finally calling the model to infer and perform a cup-pushing action.
+Development environment used:
+
+* MuJoCo
+* Featureize platform (renting GPU instances to train the dataset)
+
+<div align="center">
+  <a href="./assets/video/mujoco_demo.mp4">▶ How lamp works</a>
+</div>
+<div align="center">
+  <a href="./assets/video/mujoco_demo.mp4">
+    <img src="https://img.shields.io/badge/▶_Watch_Video-YouTube-red" alt="Evaluation">
+  </a>
+</div>
+
 ## Get started
 
 By following the documentation below, you can achieve an AI lamp.

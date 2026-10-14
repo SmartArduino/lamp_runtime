@@ -23,7 +23,7 @@ The project software is developed based on Python, and the hardware resources in
 
 The following video show how lamp works. In the video, the lamp track human face with its arm, and chat with human via LLM.
 
-[![How lamp works](./assets/images/splash.jpg)](https://youtu.be/ARS3joRqQKI)
+![How lamp works](https://youtu.be/ARS3joRqQKI)
 
 ## Hardware
 

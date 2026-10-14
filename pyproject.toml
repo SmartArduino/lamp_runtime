@@ -1,0 +1,45 @@
+[project]
+name = "lelamp-runtime"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+    "feetech-servo-sdk>=1.0.0",
+    "lerobot>=0.3.3",
+    "numpy>=2.2.6",
+    "pyarrow==20.0.0",
+    "pyaudio>=0.2.14",
+    "python-dotenv",
+    "sounddevice>=0.5.2",
+    "deepdiff>=7.0.1,<9.0.0",
+    # 声明为直接依赖，tool.uv.sources 才能对它生效
+    "torch==2.11.0",
+    "torchvision>=0.22.0,<0.27.0",
+    # 实时对话默认后端：Qwen-Omni-Realtime（LELAMP_RT_PROVIDER=qwen）
+    "dashscope>=1.27.7",
+    # GLM 后端（LELAMP_RT_PROVIDER=glm）使用的 rtclient SDK 需按 README
+    # 4.3 节从 glm-realtime-sdk 源码手动安装，此处不声明
+]
+
+[tool.uv.sources]
+# 指向本地修补过的 lerobot（路径按你的实际克隆位置调整）
+lerobot = { path = "/home/radxa/source/python/lerobot" }
+# 仅 aarch64 Linux 走 CPU 源；x86_64 上让 lerobot 自己的 cu128 配置生效
+torch = [
+    { index = "pytorch-cpu", marker = "sys_platform == 'linux' and platform_machine == 'aarch64'" },
+]
+torchvision = [
+    { index = "pytorch-cpu", marker = "sys_platform == 'linux' and platform_machine == 'aarch64'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[project.optional-dependencies]
+hardware = [
+    "adafruit-circuitpython-neopixel",
+    "rpi-ws281x",
+]

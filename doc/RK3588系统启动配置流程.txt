@@ -1,0 +1,21 @@
+确认lamp.service文件中的路径是你电脑中的路径： WorkingDirectory=/home/radxa/source/python/lamp_runtime
+
+
+只需要把 radxa 加入 dialout 组即可：
+
+bash
+sudo usermod -aG dialout radxa
+然后确认一下加入成功：
+
+bash
+groups radxa
+
+
+如果你是直接在终端手动跑 python 脚本测试（不是通过 systemctl），需要先退出重新登录 SSH，或者在当前 shell 里执行：
+bash newgrp dialout
+这条命令会开一个应用了新组身份的子 shell，再在这个 shell 里跑程序测试
+
+
+确认用户radxa的id是否1000，否则需要修改代码中：Environment="XDG_RUNTIME_DIR=/run/user/1000"，使用命令查询用户id： id -u radxa
+
+加入dialout组之后，radxa用户即有对设备/dev/ttyS4和/dev/ttyACM0的读写权限，上电后即可读写该设备。

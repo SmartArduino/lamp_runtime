@@ -1,0 +1,82 @@
+<mujoco model="my_robot">
+  <compiler meshdir="meshes" angle="radian"/>
+  <option integrator="implicitfast"/>
+
+  <asset>
+    <mesh name="base_link_mesh" file="base_link.stl"/>
+    <mesh name="link1_mesh"     file="link1.stl"/>
+    <mesh name="link2_mesh"     file="link2.stl"/>
+	<mesh name="link3_mesh"     file="link3.stl"/>
+	<mesh name="link4_mesh"     file="link4.stl"/>
+	<mesh name="head_mesh"     file="head.stl"/>
+  </asset>
+
+  <default>
+    <joint limited="true" damping="0.1"/>
+    <geom friction="0.5 0.005 0.0001" condim="3"/>
+  </default>
+
+  <worldbody>
+    <light pos="0 0 3" dir="0 0 -1" diffuse="0.8 0.8 0.8"/>
+    <geom name="ground" type="plane" size="10 10 0.1" rgba="0.9 0.9 0.9 1"/>
+
+    <!-- 基座：固定在世界中（没有 joint，即焊死） -->
+    <body name="base_link" pos="0 0 0">
+      <geom name="base_link_geom" type="mesh" mesh="base_link_mesh"
+            mass="1.0" rgba="0.2 0.6 0.8 1"/>
+
+      <!-- link1：body 的 pos = joint1 在基座坐标系中的位置 -->
+      <!-- joint1 写在 link1 内部，pos="0 0 0" 表示绕自己的原点转 -->
+      <body name="link1" pos="0 0 0.041">
+        <joint name="joint1" type="hinge" axis="0 0 1" pos="0 0 0"
+               range="-1.4134 1.4859"/>
+        <geom name="link1_geom" type="mesh" mesh="link1_mesh"
+              mass="0.8" rgba="0.8 0.2 0.2 1"/>
+
+        <!-- link2：body 的 pos = joint2 在 link1 坐标系中的位置 -->
+        <body name="link2" pos="0.002 0 0.04">
+          <joint name="joint2" type="hinge" axis="1 0 0" pos="0 0 0"
+                 range="-1.0049 1.4448"/>
+          <geom name="link2_geom" type="mesh" mesh="link2_mesh"
+                mass="0.2" rgba="0.2 0.8 0.2 1"/>
+
+          <body name="link3" pos="0.005 -0.005 0.177">
+            <joint name="joint3" type="hinge" axis="1 0 0" pos="0 0 0"
+                   range="-1.5602 1.57"/>
+            <geom name="link3_geom" type="mesh" mesh="link3_mesh"
+                  size="0.02" mass="0.2" rgba="0.8 0.8 0.2 1"/>
+
+            <body name="link4" pos="0 0 0.139">
+              <joint name="joint4" type="hinge" axis="0 0 1" pos="0 0 0"
+                     range="-1.3289 1.4077"/>
+              <geom name="link4_geom" type="mesh" mesh="link4_mesh"
+                    size="0.01" mass="0.15" rgba="0.8 0.2 0.8 1"/>
+
+              <body name="head" pos="0 0 0.033">
+                <joint name="joint5" type="hinge" axis="1 0 0" pos="0 0 0"
+                       range="-0.8203 1.3567"/>
+                <geom name="head_geom" type="mesh" mesh="head_mesh" 
+					size="0.04" mass="0.1" rgba="0.9 0.5 0.1 1"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <body name="cup" pos="0 -0.33 0.04">
+      <freejoint name="cup_joint"/>
+      <geom name="cup_geom" type="cylinder" size="0.03 0.04" mass="0.03"
+            friction="0.15 0.005 0.0001" rgba="0.2 0.2 0.8 1"/>
+    </body>
+  </worldbody>
+
+  <!-- 范围已按 bubble.json 校准限位收紧(换算表: python calib.py); 重新校准后需同步更新 -->
+  <actuator>
+    <position name="servo1" joint="joint1" kp="20" dampratio="1" ctrlrange="-1.4134 1.4859"/>
+    <position name="servo2" joint="joint2" kp="20" dampratio="1" ctrlrange="-1.0049 1.4448"/>
+    <position name="servo3" joint="joint3" kp="20" dampratio="1" ctrlrange="-1.5602 1.57"/>
+    <position name="servo4" joint="joint4" kp="20" dampratio="1" ctrlrange="-1.3289 1.4077"/>
+    <position name="servo5" joint="joint5" kp="10" dampratio="1" ctrlrange="-0.8203 1.3567"/>
+  </actuator>
+</mujoco>

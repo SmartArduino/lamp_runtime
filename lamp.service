@@ -1,0 +1,54 @@
+[Unit]
+Description=Lelamp Runtime Service
+After=network-online.target sound.target
+Wants=network-online.target
+
+# --- 崩溃循环保护（核心）---
+# 在 600 秒的滑动窗口内，最多允许启动 3 次。
+# 超过这个次数，systemd 会判定服务处于“反复失败”状态，
+# 停止继续重启，并将单元标记为 failed，而不是无限重启下去。
+StartLimitIntervalSec=600
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=radxa
+Group=radxa
+WorkingDirectory=/home/radxa/source/python/lamp_runtime
+
+ExecStart=/usr/local/bin/uv run lelamp_main.py console
+
+Environment="PATH=/home/radxa/source/python/lamp_runtime/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="HOME=/home/radxa"
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+
+# 业务相关的密钥/配置（.env 中的 API Key 等）不要用 EnvironmentFile= 注入。
+# 原因：systemd 解析 env 文件的规则与 python-dotenv 不同
+# （如 CRLF 行尾、行内注释、export 前缀等处理方式不一致），
+# 一旦解析出的 Key 与 .env 实际内容不同，就会出现
+# 「手动 python 启动正常、systemctl 启动报 401 Unauthorized」的问题；
+# 且 EnvironmentFile 注入的变量优先生效，主程序的 load_dotenv() 不会覆盖它们。
+# 主程序启动时会通过 load_dotenv() 从脚本目录加载 .env，
+# 与手动 python lelamp_main.py 的加载路径完全一致，此处无需任何配置。
+
+# --- 重启策略 ---
+# on-failure：仅在非正常退出（崩溃、非 0 退出码、被信号杀死、超时）时重启；
+# 正常的 systemctl stop / 主动退出（退出码 0）不会触发重启。
+Restart=on-failure
+RestartSec=10
+
+# 达到 StartLimitBurst 上限后的动作。
+# none 表示：不做额外动作，只是停止重启并把单元置为 failed。
+# 如果你想在触发限流时得到通知（比如发消息、点亮报警灯），
+# 可以把这里配合 OnFailure= 指令指向一个通知用的 oneshot 服务。
+StartLimitAction=none
+
+KillSignal=SIGINT
+TimeoutStopSec=10
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

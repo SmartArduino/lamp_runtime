@@ -1,0 +1,26 @@
+完整工作流
+record_demo.py 录数据 → convert_to_lerobot.py → lerobot-train 训练
+→ export_policy_onnx.py --pretrained <checkpoint> 导出
+→ eval_act.py 仿真里看效果 → 满意后拷到 RK3588 用 rk3588_infer.py 跑真机
+当前 act_policy.onnx 是随机权重（只验证了管线），正式使用顺序：先多录数据 → 训练 → 重新导出 → 再用 eval_act.py 看效果。如果训练好的策略在仿真里动作平滑但推杯成功率低，优先加数据（不同杯子初始位置）而不是调模型。
+
+
+数据转换命令： python convert_to_lerobot.py --repo-id local/myarm_act 保存在C:\Users\admin\.cache\huggingface\lerobot\local\myarm_act
+
+训练数据命令： lerobot-train --dataset.repo_id=local/myarm_act_v2 --policy.type=act \
+  --policy.push_to_hub=false --policy.use_vae=false \
+  --policy.optimizer_lr=1e-4 \
+  --policy.chunk_size=50 --policy.n_action_steps=50 \
+  --output_dir=outputs/train/act_myarm_v5 \
+  --batch_size=16 --steps=200000 --save_freq=25000 --eval_steps=0
+
+转换onnx文件命令： python.exe .\export_policy_onnx.py --pretrained .\outputs\train\act_myarm\checkpoints\000500\pretrained_model\ --repo-id local\myarm_act --out myarm_policy.onnx
+
+模型评估： python eval_act.py --onnx myarm_act.onnx
+
+校准与限位(bubble.json):
+- bubble.json 是机械臂校准文件: homing_offset=中位偏移(0.01度), range_min/max=舵机原始值限位(4096步=360度), drive_mode bit0=方向位(1=反向)。
+- calib.py 统一做 弧度<->舵机原始值 的换算/限位/方向; 运行 python calib.py 打印各关节换算表并自检。
+- eval_act.py(仿真)与 rk3588_infer.py(真机)会自动加载 bubble.json: 策略输出先按各关节真实限位截断, 真机还会限速(--max-deg-per-step)并硬限幅到 [range_min, range_max] 后才发舵机, 严重越限(--abort-margin-deg)直接停机。
+- robot.xml 的关节/控制范围也已按校准收紧; 重新校准或换臂后: 更新 bubble.json -> python calib.py 自检 -> 按打印的 rad_min/max 同步更新 robot.xml 的 range/ctrlrange。
+- rk3588_infer.py 部署到板子时需与 calib.py、bubble.json 放同一目录。
